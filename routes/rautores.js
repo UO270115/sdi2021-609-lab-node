@@ -1,8 +1,16 @@
-const url = require("url");
-
 module.exports = function (app, swig) {
 
     var autores = filtrarRoles(null);
+
+    app.get("/autores", function (req, res) {
+        let respuesta = swig.renderFile("views/autores.html", {
+            autores: autores
+        })
+
+        autores = filtrarRoles(null);
+
+        res.send(respuesta);
+    });
 
     app.get("/autores/agregar", function (req, res) {
         let roles = ["cantante", "batería", "guitarrista", "bajista", "teclista"];
@@ -35,16 +43,6 @@ module.exports = function (app, swig) {
         } else {
             respuesta += "Rol: " + req.body.rol + "<br>";
         }
-
-        res.send(respuesta);
-    });
-
-    app.get("/autores", function (req, res) {
-        let respuesta = swig.renderFile("views/autores.html", {
-            autores: autores
-        })
-
-        autores = filtrarRoles(null);
 
         res.send(respuesta);
     });
