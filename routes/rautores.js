@@ -56,7 +56,7 @@ module.exports = function (app, swig, gestorDB) {
         res.redirect("/autores");
     });
 
-    function filtrarRoles(rol){
+    function filtrarRoles(rol) {
         let autores = [
             {
                 "nombre": "Andre",
@@ -118,7 +118,7 @@ module.exports = function (app, swig, gestorDB) {
             }
         ];
 
-        if(rol !== null){
+        if (rol !== null) {
             return autores.filter(autor => autor.rol === rol);
         }
         return autores;
