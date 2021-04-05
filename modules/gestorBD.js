@@ -5,6 +5,41 @@ module.exports = {
         this.mongo = mongo;
         this.app = app;
     },
+    obtenerComentarios: function (criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get("db"), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection("comentarios");
+                collection.find(criterio).toArray(function (err, comentarios) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(comentarios);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
+    insertarComentario: function (comentario, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get("db"), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection("comentarios");
+                collection.insert(comentario, function (err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        console.log(result.ops[0]);
+                        funcionCallback(result.ops[0]._id);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
     modificarCancion: function (criterio, cancion, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get("db"), function (err, db) {
             if (err) {
@@ -44,7 +79,6 @@ module.exports = {
             if (err) {
                 funcionCallback(null);
             } else {
-                let collection = db.collection("usuarios");
                 collection.insert(usuario, function (err, result) {
                     if (err) {
                         funcionCallback(null);

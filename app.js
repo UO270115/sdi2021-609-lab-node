@@ -31,7 +31,7 @@ routerUsuarioSession.use(function (req, res, next) {
         // dejamos correr la petición
         next();
     } else {
-        console.log("va a : " + req.session.destino)
+        console.log("va a : " + req.session.destino);
         res.redirect("/identificarse");
     }
 });
@@ -54,6 +54,19 @@ routerAudios.use(function (req, res, next) {
 });
 
 app.use("/audios/", routerAudios);
+
+let routerComentarios = express.Router();
+routerComentarios.use(function(req, res, next){
+   console.log("routerComentarios");
+    if (req.session.usuario) {
+        next();
+    } else {
+        //console.log("va a : " + req.session.destino)
+        res.send("Error: no se puede añadir un comentario a una canción si el usuario no está identificado");
+    }
+});
+
+app.use("/comentarios", routerComentarios); // /comentarios/:cancion_id
 
 app.use(express.static("public"));
 

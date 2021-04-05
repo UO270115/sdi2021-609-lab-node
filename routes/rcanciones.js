@@ -110,15 +110,26 @@ module.exports = function (app, swig, gestorBD) {
 
     app.get("/cancion/:id", function (req, res) {
         let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
+
         gestorBD.obtenerCanciones(criterio, function (canciones) {
             if (canciones == null) {
                 res.send("Error al recuperar la canción.");
             } else {
-                let respuesta = swig.renderFile("views/bcancion.html",
-                    {
-                        cancion: canciones[0]
-                    });
-                res.send(respuesta);
+                let criterioComentario = { "cancion_id": gestorBD.mongo.ObjectID(req.params.id) };
+
+                gestorBD.obtenerComentarios(criterioComentario, function (comentarios){
+                   if(comentarios == null){
+                       res.send("Error al recuperar los comentarios de la canción.")
+                   }else{
+                       let respuesta = swig.renderFile("views/bcancion.html",
+                           {
+                               cancion: canciones[0],
+                               comentarios: comentarios
+
+                           });
+                       res.send(respuesta);
+                   }
+                });
             }
         });
     });
@@ -195,6 +206,21 @@ module.exports = function (app, swig, gestorBD) {
                         canciones: canciones
                     });
                 res.send(respuesta);
+            }
+        });
+    });
+
+    app.post("/comentarios/:cancion_id", function(req, res){
+        let comentario = {
+            autor: req.session.usuario,
+            texto: req.body.texto,
+            cancion_id: gestorBD.mongo.ObjectID(req.params.cancion_id)
+        }
+        gestorBD.insertarComentario(comentario, function (id) {
+            if (id == null) {
+                res.send("Error al insertar un comentario");
+            } else {
+                res.send("Comentario Insertado " + id);
             }
         });
     });
