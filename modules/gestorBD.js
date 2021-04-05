@@ -112,6 +112,7 @@ module.exports = {
             if (err) {
                 funcionCallback(null);
             } else {
+                let collection = db.collection("usuarios");
                 collection.insert(usuario, function (err, result) {
                     if (err) {
                         funcionCallback(null);

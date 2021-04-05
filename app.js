@@ -58,8 +58,8 @@ routerUsuarioAutor.use(function (req, res, next) {
 });
 
 //Aplicar routerUsuarioAutor
-app.use("/cancion/modificar",routerUsuarioAutor);
-app.use("/cancion/eliminar",routerUsuarioAutor);
+app.use("/cancion/modificar", routerUsuarioAutor);
+app.use("/cancion/eliminar", routerUsuarioAutor);
 
 let routerAudios = express.Router();
 routerAudios.use(function (req, res, next) {
@@ -122,6 +122,10 @@ require("./routes/rusuarios.js")(app, swig, gestorBD); // (app, param1, param2, 
 require("./routes/rcanciones.js")(app, swig, gestorBD);
 require("./routes/rautores.js")(app, swig, gestorBD);
 require("./routes/rcomentarios.js")(app, swig, gestorBD);
+
+app.get('/', function (req, res) {
+    res.redirect('/tienda');
+})
 
 //lanzar el servidor
 app.listen(app.get("port"), function () {
