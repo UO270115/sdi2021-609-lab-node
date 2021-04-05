@@ -5,6 +5,23 @@ module.exports = {
         this.mongo = mongo;
         this.app = app;
     },
+    eliminarComentario: function (criterio, funcionCallback) {
+        this.mongo.MongoClient.connect(this.app.get("db"), function (err, db) {
+            if (err) {
+                funcionCallback(null);
+            } else {
+                let collection = db.collection("comentarios");
+                collection.remove(criterio, function (err, result) {
+                    if (err) {
+                        funcionCallback(null);
+                    } else {
+                        funcionCallback(result);
+                    }
+                    db.close();
+                });
+            }
+        });
+    },
     obtenerComentarios: function (criterio, funcionCallback) {
         this.mongo.MongoClient.connect(this.app.get("db"), function (err, db) {
             if (err) {
@@ -32,7 +49,6 @@ module.exports = {
                     if (err) {
                         funcionCallback(null);
                     } else {
-                        console.log(result.ops[0]);
                         funcionCallback(result.ops[0]._id);
                     }
                     db.close();

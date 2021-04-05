@@ -56,17 +56,34 @@ routerAudios.use(function (req, res, next) {
 app.use("/audios/", routerAudios);
 
 let routerComentarios = express.Router();
-routerComentarios.use(function(req, res, next){
-   console.log("routerComentarios");
+routerComentarios.use(function (req, res, next) {
+    console.log("routerComentarios");
     if (req.session.usuario) {
         next();
     } else {
-        //console.log("va a : " + req.session.destino)
         res.send("Error: no se puede añadir un comentario a una canción si el usuario no está identificado");
     }
 });
 
-app.use("/comentarios", routerComentarios); // /comentarios/:cancion_id
+app.use("/comentarios", routerComentarios);
+
+let routerComentarioAutor = express.Router();
+routerComentarioAutor.use(function (req, res, next) {
+    console.log("routerComentarioAutor");
+    let path = require("path");
+    let id = path.basename(req.originalUrl);
+    // Cuidado porque req.params no funciona
+    // en el router si los params van en la URL.
+    gestorBD.obtenerComentarios({_id: mongo.ObjectID(id)}, function (comentarios) {
+        if (comentarios[0].autor == req.session.usuario) {
+            next();
+        } else {
+            res.send("Error: no se puede eliminar el comentario ya que el usuario no es el que lo creó");
+        }
+    })
+});
+
+app.use("/comentario/borrar", routerComentarioAutor);
 
 app.use(express.static("public"));
 
@@ -82,6 +99,7 @@ app.set("crypto", crypto);
 require("./routes/rusuarios.js")(app, swig, gestorBD); // (app, param1, param2, etc.)
 require("./routes/rcanciones.js")(app, swig, gestorBD);
 require("./routes/rautores.js")(app, swig, gestorBD);
+require("./routes/rcomentarios.js")(app, swig, gestorBD);
 
 //lanzar el servidor
 app.listen(app.get("port"), function () {
