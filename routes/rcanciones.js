@@ -124,8 +124,8 @@ module.exports = function (app, swig, gestorBD) {
         let cancionId = gestorBD.mongo.ObjectID(req.params.id);
         let usuario = req.session.usuario;
 
-        usuarioPuedeComprarCancion(usuario, cancionId, function(comprar){
-            if(comprar){
+        usuarioPuedeComprarCancion(usuario, cancionId, function (comprar) {
+            if (comprar) {
                 let compra = {
                     usuario: req.session.usuario,
                     cancionId: cancionId
@@ -137,16 +137,15 @@ module.exports = function (app, swig, gestorBD) {
                         res.redirect("/compras");
                     }
                 });
-            }else{
+            } else {
                 //res.send("Error al comprar la canción o ya la compraste");
                 res.redirect("/errors" + "?mensaje=Error al comprar la canción, no puedes comprar una canción propio o ya comprada"
-                            + "&tipoMensaje=alert-danger ");
+                    + "&tipoMensaje=alert-danger ");
             }
         });
     });
 
-
-    app.get("/errors", function(req, res){
+    app.get("/errors", function (req, res) {
         let respuesta = swig.renderFile("views/error.html",
             {
                 mensaje: req.params.mensaje,
@@ -156,22 +155,22 @@ module.exports = function (app, swig, gestorBD) {
         res.send(respuesta);
     });
 
-    function usuarioPuedeComprarCancion(usuario, cancionId, funcionCallback){
+    function usuarioPuedeComprarCancion(usuario, cancionId, funcionCallback) {
         let criterio_cancion_autor = {$and: [{"_id": cancionId}, {"autor": usuario}]};
         let criterio_comprada = {$and: [{"cancionId": cancionId}, {"usuario": usuario}]};
 
-        gestorBD.obtenerCanciones(criterio_cancion_autor, function(canciones){
-           if(canciones == null || canciones.length > 0) {
+        gestorBD.obtenerCanciones(criterio_cancion_autor, function (canciones) {
+            if (canciones == null || canciones.length > 0) {
                 funcionCallback(false);
-           }else{
-               gestorBD.obtenerCompras(criterio_comprada, function(compras){
-                  if(compras == null || compras.length > 0){
-                      funcionCallback(false);
-                  } else{
-                      funcionCallback(true);
-                  }
-               });
-           }
+            } else {
+                gestorBD.obtenerCompras(criterio_comprada, function (compras) {
+                    if (compras == null || compras.length > 0) {
+                        funcionCallback(false);
+                    } else {
+                        funcionCallback(true);
+                    }
+                });
+            }
         });
     }
 
@@ -185,22 +184,35 @@ module.exports = function (app, swig, gestorBD) {
                 cancionId = gestorBD.mongo.ObjectID(req.params.id);
                 usuario = req.session.usuario;
 
-                usuarioPuedeComprarCancion(usuario, cancionId, function(comprar){
+                usuarioPuedeComprarCancion(usuario, cancionId, function (comprar) {
                     let criterioComentario = {"cancion_id": gestorBD.mongo.ObjectID(req.params.id)};
                     gestorBD.obtenerComentarios(criterioComentario, function (comentarios) {
-                        if (comentarios == null) {
-                            res.send("Error al recuperar los comentarios de la canción.")
-                        } else {
-                            let respuesta = swig.renderFile("views/bcancion.html",
-                                {
-                                    cancion: canciones[0],
-                                    comentarios: comentarios,
-                                    puedecomprar: comprar
+                            if (comentarios == null) {
+                                res.send("Error al recuperar los comentarios de la canción.")
+                            } else {
+                                let configuracion = {
+                                    url: "https://www.freeforexapi.com/api/live?pairs=EURUSD",
+                                    method: "get",
+                                    headers: {"token": "ejemplo",}
+                                }
+                                let rest = app.get("rest");
+                                rest(configuracion, function (error, response, body) {
+                                    console.log("cod: " + response.statusCode + " Cuerpo :" + body);
+                                    let objetoRespuesta = JSON.parse(body);
+                                    let cambioUSD = objetoRespuesta.rates.EURUSD.rate; // nuevo campo "usd"
+                                    canciones[0].usd = cambioUSD * canciones[0].precio;
+                                    let respuesta = swig.renderFile("views/bcancion.html",
+                                        {
+                                            cancion: canciones[0],
+                                            comentarios: comentarios,
+                                            puedecomprar: comprar
 
-                                });
-                            res.send(respuesta);
+                                        });
+                                    res.send(respuesta);
+                                })
+                            }
                         }
-                    });
+                    );
                 });
             }
         });
