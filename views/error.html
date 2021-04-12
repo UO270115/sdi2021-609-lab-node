@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block titulo %} Error {% endblock %}
+
+{% block contenido_principal %}
+<div class="row">
+    <script>
+        var mensaje = getUrlParameter("mensaje");
+        var tipoMensaje = getUrlParameter("tipoMensaje");
+
+        if (mensaje != "") {
+            if (tipoMensaje == "") {
+                tipoMensaje = "alert-info";
+            }
+
+            $(".container").append("<h2> ¡AVISO IMPORTANTE! </h2>");
+
+            $(".container").append("<div class='alert " + tipoMensaje + "'>" + mensaje + " </div>");
+        }
+
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + "=([^&#]*)");
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        };
+    </script>
+</div>
+{% endblock %}

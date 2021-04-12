@@ -138,9 +138,22 @@ module.exports = function (app, swig, gestorBD) {
                     }
                 });
             }else{
-                res.send("Error al comprar la canción o ya la compraste");
+                //res.send("Error al comprar la canción o ya la compraste");
+                res.redirect("/errors" + "?mensaje=Error al comprar la canción, no puedes comprar una canción propio o ya comprada"
+                            + "&tipoMensaje=alert-danger ");
             }
         });
+    });
+
+
+    app.get("/errors", function(req, res){
+        let respuesta = swig.renderFile("views/error.html",
+            {
+                mensaje: req.params.mensaje,
+                tipoMensaje: req.params.tipoMensaje
+
+            });
+        res.send(respuesta);
     });
 
     function usuarioPuedeComprarCancion(usuario, cancionId, funcionCallback){
